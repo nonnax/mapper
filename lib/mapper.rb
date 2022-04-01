@@ -30,17 +30,17 @@ module Map
     attr_accessor :routes, :method
 
     def method_missing(m, a)
-      routes[method][a] = m.to_s
+      routes[method][a] = m.to_s.tr('_','.')
     end
 
     def get(&block)
       @method = 'GET'
-      instance_eval(&block)
+      instance_eval &block
     end
 
     def post(&block)
       @method = 'POST'
-      instance_eval(&block)
+      instance_eval &block
     end
   end
 end

@@ -11,6 +11,7 @@ Map.get do
   tv '/teevs'
   movie '/movie'
   movie '/mov'
+  doc_md '/doc'
 end
 
 puts Map.routes.to_yaml
