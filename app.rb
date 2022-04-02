@@ -11,7 +11,7 @@ Map.get do
   tv '/teevs'
   movie '/movie'
   movie '/mov'
-  doc_md '/doc'
+  doc_md '/doc'  #x.md.erb methods are md processed erbs
 end
 
 puts Map.routes.to_yaml
