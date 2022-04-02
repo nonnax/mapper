@@ -4,16 +4,6 @@
 # Id$ nonnax 2022-03-01 15:27:49 +0800
 require 'kramdown'
 
-module Kernel
-  def _div_(**params, &block)
-    opts = []
-    params.to_a.inject(opts) do |acc, (k, v)|
-      acc << [k, %('#{v}')].join('=')
-    end
-    "<div #{opts.join(' ')}>#{block.call}</div>"
-  end
-end
-
 class String
   def to_html
     Kramdown::Document.new(self).to_html
@@ -32,7 +22,7 @@ class View
     @template, @layout = [page, :layout].map do |v|
       File.expand_path("../public/views/#{v}.erb", __dir__).then do |f|
         IO.read(f)
-        .then{|text| f.match?(/.md.erb/)? _div_(class: 'item'){ text.to_html } : text  }
+        .then{|text| f.match?(/.md.erb/)? text.to_html : text  }
       end
     end
   end

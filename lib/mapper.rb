@@ -19,7 +19,7 @@ class Mapper
          .then { |body| return [200, {}, [body]] if body }
     end
 
-    [302, { 'Location' => '/' }, []] # go home
+    [404, { 'Location' => '/' }, []] # go home
   end
 end
 
