@@ -18,6 +18,7 @@ Map.get do
   movie '/movie', title: 'movie time', active: 'mov'
   movie( '/mov'){ :tv }
   doc_md '/doc'  #x.md.erb template methods are markdown-processed erbs
+  data '/data'  #x.md.erb template methods are markdown-processed erbs
 end
 
 Map.post do

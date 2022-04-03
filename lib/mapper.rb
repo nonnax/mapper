@@ -17,9 +17,7 @@ class Mapper
             post_body=JSON.parse(req.body.read) rescue {}
             route[:data].merge!(post_body, req.params) 
           }
-         .then { |route|
-            View.render(route[:erb], **route[:data]) 
-          }
+         .then { |route| View.render(route[:erb], **route[:data]) }
          .then { |body| return [200, {'Content-type'=>'text/html; charset=utf8'}, [body]] if body }
     end
 
