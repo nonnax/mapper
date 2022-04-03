@@ -12,9 +12,14 @@ class Mapper
     req=Rack::Request.new(env)
     path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
     if Map.routes[method].key?(path)
-      Map.routes[method][path]
-         .tap {|route| route[:data].merge!(JSON.parse(req.body.read)) }
-         .then { |route| View.render(route[:erb], **route[:data]) }
+      Map.routes[method][path]      
+         .tap {|route| 
+            body=JSON.parse(req.body.read) rescue {}
+            route[:data].merge!(body, req.params) 
+          }
+         .then { |route|
+            View.render(route[:erb], **route[:data]) 
+          }
          .then { |body| return [200, {}, [body]] if body }
     end
 
@@ -27,15 +32,23 @@ module Map
   class << self
     attr_accessor :routes, :method
 
-    def method_missing(m, a, **data)
-      r={erb: m.to_s.tr('_', '.'), data: data}
+    def method_missing(m, a, **data, &block)
+      push m, a, **data, &block
+      @matched=true
+    end
+    
+    define_method(:push) do |m, a, **data, &block|
+      m=block.call if block
+      r={erb: m.to_s.tr('_', '.'), data:}
       routes[method][a] = r
     end
 
     %w[GET POST DELETE].map do |m|
-      define_method(m.downcase){|*path, &b| 
+      define_method(m.downcase){|*path, **data, &b| 
         @method=m
         instance_eval(&b)
+        path.map{ |p| push(m, p, **data, &b) } unless @matched
+        @matched=false
       }
     end
   end
