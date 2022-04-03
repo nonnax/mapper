@@ -11,7 +11,7 @@ class Mapper
     path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
     if Map.routes[method].key?(path)
       Map.routes[method][path]
-         .then { |erb| View.render(erb) }
+         .then { |route| View.render(route[:erb], **route[:data]) }
          .then { |body| return [200, {}, [body]] if body }
     end
 
@@ -24,17 +24,15 @@ module Map
   class << self
     attr_accessor :routes, :method
 
-    def method_missing(m, a)
-      routes[method][a] = m.to_s.tr('_', '.')
-      @matched=true
+    def method_missing(m, a, **data)
+      r={erb: m.to_s.tr('_', '.'), data: data}
+      routes[method][a] = r
     end
 
     %w[GET POST DELETE].map do |m|
       define_method(m.downcase){|*path, &b| 
         @method=m
-        instance_eval(&b) #unless path[0]
-        routes[method][path[0]]=b[] unless @matched 
-        @matched=false
+        instance_eval(&b)
       }
     end
   end

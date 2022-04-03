@@ -22,11 +22,13 @@ class View
     end
   end
 
-  def render(**h)
-    _render(layout, **h){ _render(template, **h) } 
+  def render
+    _render(layout){ _render(template, binding) } 
   rescue
     nil
   end
-  def _render(text, **h) ERB.new(text).result_with_hash(**h) end
+  def _render(text, b=binding) 
+    ERB.new(text).result(b) 
+  end
   def visit_count() data[:visit_count] end
 end

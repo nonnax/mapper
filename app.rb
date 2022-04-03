@@ -6,13 +6,13 @@ require_relative 'lib/mapper'
 require 'yaml'
 
 # single path mapping
-Map.get('/'){ :index }
+# Map.get('/'){ :index }
 
 # or multi declarations
 Map.get do
-  tv '/tv'
-  tv '/teevs'
-  movie '/movie'
+  index '/',      title: 'Tada!'
+  tv    '/tv',    active: 'tv'
+  movie '/movie', title: 'movie time', active: 'mov'
   movie '/mov'
   doc_md '/doc'  #x.md.erb methods are md processed erbs
 end
