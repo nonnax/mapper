@@ -14,13 +14,13 @@ class Mapper
     if Map.routes[method].key?(path)
       Map.routes[method][path]      
          .tap {|route| 
-            body=JSON.parse(req.body.read) rescue {}
-            route[:data].merge!(body, req.params) 
+            post_body=JSON.parse(req.body.read) rescue {}
+            route[:data].merge!(post_body, req.params) 
           }
          .then { |route|
             View.render(route[:erb], **route[:data]) 
           }
-         .then { |body| return [200, {}, [body]] if body }
+         .then { |body| return [200, {'Content-type'=>'text/html; charset=utf8'}, [body]] if body }
     end
 
     [302, { 'Location' => '/' }, []] # go home
