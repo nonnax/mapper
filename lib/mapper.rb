@@ -11,15 +11,11 @@ class Mapper
     path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
     if Map.routes[method].key?(path)
       Map.routes[method][path]
-         .then do |erb|
-        View.render(erb)
-      rescue StandardError
-        nil
-      end
+         .then { |erb| View.render(erb) }
          .then { |body| return [200, {}, [body]] if body }
     end
 
-    [404, { 'Location' => '/' }, []] # go home
+    [302, { 'Location' => '/' }, []] # go home
   end
 end
 
@@ -32,14 +28,11 @@ module Map
       routes[method][a] = m.to_s.tr('_', '.')
     end
 
-    def get(&block)
-      @method = 'GET'
-      instance_eval(&block)
-    end
-
-    def post(&block)
-      @method = 'POST'
-      instance_eval(&block)
+    %w[GET POST DELETE].map do |m|
+      define_method(m.downcase){|&b| 
+        @method=m
+        instance_eval &b
+      }
     end
   end
 end

@@ -5,39 +5,28 @@
 require 'kramdown'
 
 class String
-  def to_html
-    Kramdown::Document.new(self).to_html
-  end
+  def to_html() Kramdown::Document.new(self).to_html end
 end
 
 class View
   attr :data, :template, :layout
 
-  def self.render(page, **data)
-    new(page, **data).render
-  end
+  def self.render(page, **data) new(page, **data).render end
 
   def initialize(page, **data)
     @data = data
     @template, @layout = [page, :layout].map do |v|
-      File.expand_path("../public/views/#{v}.erb", __dir__).then do |f|
-        IO.read(f)
-        .then{|text| f.match?(/.md.erb/)? text.to_html : text  }
-      end
+      File.expand_path("../public/views/#{v}.erb", __dir__)
+      .then{ |f| IO.read(f) }
+      .then{ |text| v.match?(/\.md/)? text.to_html : text  }
     end
   end
 
   def render
-    _render(layout) do
-      _render(template, binding)
-    end
+    _render(layout){ _render(template, binding) } 
+  rescue
+    nil
   end
-
-  def _render(text, b = binding)
-    ERB.new(text).result(b)
-  end
-
-  def visit_count
-    data[:visit_count]
-  end
+  def _render(text, b = binding) ERB.new(text).result(b) end
+  def visit_count() data[:visit_count] end
 end
