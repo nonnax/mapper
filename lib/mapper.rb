@@ -26,12 +26,15 @@ module Map
 
     def method_missing(m, a)
       routes[method][a] = m.to_s.tr('_', '.')
+      @matched=true
     end
 
     %w[GET POST DELETE].map do |m|
-      define_method(m.downcase){|&b| 
+      define_method(m.downcase){|*path, &b| 
         @method=m
-        instance_eval &b
+        instance_eval(&b) #unless path[0]
+        routes[method][path[0]]=b[] unless @matched 
+        @matched=false
       }
     end
   end
