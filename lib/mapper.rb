@@ -5,12 +5,15 @@
 # http routes mapper
 
 require_relative 'viewmd'
+require 'json'
 
 class Mapper
   def call(env)
+    req=Rack::Request.new(env)
     path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
     if Map.routes[method].key?(path)
       Map.routes[method][path]
+         .tap {|route| route[:data].merge!(JSON.parse(req.body.read)) }
          .then { |route| View.render(route[:erb], **route[:data]) }
          .then { |body| return [200, {}, [body]] if body }
     end

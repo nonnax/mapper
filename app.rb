@@ -14,7 +14,11 @@ Map.get do
   tv    '/tv',    active: 'tv'
   movie '/movie', title: 'movie time', active: 'mov'
   movie '/mov'
-  doc_md '/doc'  #x.md.erb methods are md processed erbs
+  doc_md '/doc'  #x.md.erb template methods are markdown-processed erbs
+end
+
+Map.post do
+  data '/', title: 'Posting'
 end
 
 puts Map.routes.to_yaml
