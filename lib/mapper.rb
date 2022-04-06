@@ -7,6 +7,8 @@
 require_relative 'viewmd'
 require 'json'
 
+V=View.method(:render)
+
 class Mapper
   def call(env)
     req=Rack::Request.new(env)
@@ -16,7 +18,7 @@ class Mapper
           post_body=JSON.parse(req.body.read) rescue {}
           route[:data].merge!(post_body, req.params) 
         }
-       .then { |route| View.render(route[:erb], **route[:data]) }
+       .then { |route| V.(route[:erb], **route[:data]) }
        .then { |body| return [200, {'Content-type'=>'text/html; charset=utf8'}, [body]] if body }
     end
 
