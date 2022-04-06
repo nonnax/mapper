@@ -10,15 +10,14 @@ require 'json'
 class Mapper
   def call(env)
     req=Rack::Request.new(env)
-    path, method = env.values_at('PATH_INFO', 'REQUEST_METHOD')
-    if Map.routes[method].key?(path)
-      Map.routes[method][path]      
-         .tap {|route| 
-            post_body=JSON.parse(req.body.read) rescue {}
-            route[:data].merge!(post_body, req.params) 
-          }
-         .then { |route| View.render(route[:erb], **route[:data]) }
-         .then { |body| return [200, {'Content-type'=>'text/html; charset=utf8'}, [body]] if body }
+    if match=Map.routes[env.values_at('REQUEST_METHOD', 'REQUEST_PATH')]
+      match
+      .tap {|route| 
+          post_body=JSON.parse(req.body.read) rescue {}
+          route[:data].merge!(post_body, req.params) 
+        }
+       .then { |route| View.render(route[:erb], **route[:data]) }
+       .then { |body| return [200, {'Content-type'=>'text/html; charset=utf8'}, [body]] if body }
     end
 
     [302, { 'Location' => '/' }, []] # go home
@@ -26,7 +25,8 @@ class Mapper
 end
 
 module Map
-  @routes = Hash.new { |h, k| h[k] = {} }
+  D=Object.method(:define_method)
+  @routes = Hash.new { |h, k| h[k] = nil }
   class << self
     attr_accessor :routes, :method
 
@@ -35,14 +35,14 @@ module Map
       @matched=true
     end
     
-    define_method(:push) do |m, a, **data, &block|
+    D[:push] do |m, a, **data, &block|
       m=block.call if block
       r={erb: m.to_s.tr('_', '.'), data:}
-      routes[method][a] = r
+      routes[[method, a]] = r
     end
 
     %w[GET POST DELETE].map do |m|
-      define_method(m.downcase){|*path, **data, &b| 
+      D[m.downcase]{|*path, **data, &b| 
         @method=m
         instance_eval(&b)
         path.map{ |p| push(m, p, **data, &b) } unless @matched
