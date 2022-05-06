@@ -7,27 +7,24 @@ require 'pp'
 
 # single path mapping
 # get <path> <**locals> -> render <template>
-Map.get('/', title: 'Tada!' ){ 
-  :index 
-}
 
 # multi-path mapping
-Map.get('/hq', '/home', title: 'Home' ){ 
-  :index 
+Map.get('/hq', '/home', title: 'Home' ){
+  :index
 }
 
 # or multi declarations
 Map.get do
   #template, url
-  data '/data'  
-  
+  data '/data'
+
   #template, url, locals
   tv    '/tv',    active: 'tv'
   movie '/movie', title: 'movie time', active: 'mov'
-  
+
   #template, url, new template
   movie('/mov'){ :tv } # change the target template
-  
+
   #template.md.erb, url
   doc_md '/doc'  #x.md.erb template methods are markdown-processed erbs
 end
@@ -39,6 +36,15 @@ end
 
 Map.post('/post', title: 'Posting again') do
   :data
+end
+
+Map.get('/', title: 'Tada!' ){
+  :index
+}
+
+def GET(**match)
+  pp match
+  V.call(match[:erb], **match[:data])
 end
 
 pp Map.routes

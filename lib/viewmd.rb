@@ -14,7 +14,7 @@ class View
   def initialize(page, **data)
     @data = data
     @template, @layout = [page, :layout].map do |v|
-      File.expand_path("../public/views/#{v}.erb", __dir__)
+      File.expand_path("public/views/#{v}.erb", Dir.pwd)
       .then{ |f| IO.read(f)}
       .then{ |t| v.match?(/\.md/)? K[t].to_html : t }
     end
